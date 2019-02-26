@@ -1,0 +1,30 @@
+apiVersion: skaffold/v1beta2
+kind: Config
+build:
+  artifacts:
+  - image: changeme
+    context: .
+    docker: {}
+  tagPolicy:
+    envTemplate:
+      template: '{{.DOCKER_REGISTRY}}/dothrakihord/cloudshell-tutorial-1:{{.VERSION}}'
+  local: {}
+deploy:
+  kubectl: {}
+profiles:
+- name: dev
+  build:
+    artifacts:
+    - docker: {}
+    tagPolicy:
+      envTemplate:
+        template: '{{.DOCKER_REGISTRY}}/dothrakihord/cloudshell-tutorial-1:{{.DIGEST_HEX}}'
+    local: {}
+  deploy:
+    helm:
+      releases:
+      - name: cloudshell-tutorial-1
+        chartPath: charts/cloudshell-tutorial-1
+        setValueTemplates:
+          image.repository: '{{.DOCKER_REGISTRY}}/dothrakihord/cloudshell-tutorial-1'
+          image.tag: '{{.DIGEST_HEX}}'
